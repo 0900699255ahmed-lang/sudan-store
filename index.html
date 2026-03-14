@@ -3,21 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سوق السودان المفتوح 🇸🇩</title>
+    <title>سوق السودان برو 🇸🇩</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #15803d 0%, #166534 100%); }
+        body { font-family: 'Tajawal', sans-serif; transition: 0.3s; }
+        .dark { background-color: #1a202c; color: white; }
+        .dark .bg-white { background-color: #2d3748; color: white; border-color: #4a5568; }
+        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+        .notification { animation: slideIn 0.5s ease-out; }
     </style>
 </head>
-<body class="bg-gray-100 pb-24">
+<body class="bg-gray-50 pb-24" id="body">
 
-    <nav class="gradient-bg text-white shadow-xl sticky top-0 z-50 p-4">
+    <div id="live-notif" class="hidden fixed bottom-24 right-4 z-[100] bg-white shadow-2xl p-3 rounded-2xl flex items-center space-x-3 space-x-reverse border-r-4 border-green-500 notification">
+        <div class="bg-green-100 p-2 rounded-full text-xl">🛒</div>
+        <div>
+            <p class="text-xs font-bold" id="notif-text">شخص من أم درمان اشترى الآن</p>
+            <p class="text-[10px] text-gray-500">منذ 2 دقيقة</p>
+        </div>
+    </div>
+
+    <nav class="bg-green-700 text-white shadow-xl sticky top-0 z-50 p-4">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold italic">سُوق السودان 🇸🇩</h1>
-            <div class="flex items-center space-x-4 space-x-reverse">
-                <button onclick="toggleSellerForm()" class="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold shadow-md hover:bg-yellow-300">عرض بضاعتك +</button>
+            <h1 class="text-xl font-bold">سُوق السودان 🇸🇩</h1>
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <button onclick="toggleDarkMode()" class="p-2 bg-green-800 rounded-full text-sm">🌙</button>
+                <button onclick="toggleSellerForm()" class="bg-yellow-400 text-black px-3 py-1 rounded-full text-xs font-bold shadow-md">اعرض بضاعتك +</button>
                 <div id="cart-icon" class="relative cursor-pointer bg-green-900 p-2 rounded-full">
                     🛒 <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1.5">0</span>
                 </div>
@@ -25,41 +37,34 @@
         </div>
     </nav>
 
-    <div id="seller-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[70] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl">
-            <h2 class="text-2xl font-bold mb-4 text-green-700">اعرض منتجك في سوقنا 🤝</h2>
-            <p class="text-sm text-gray-600 mb-6">املأ البيانات وسيتم التواصل معك لنشر منتجك</p>
-            
+    <div id="seller-modal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl overflow-hidden relative">
+            <h2 class="text-2xl font-bold mb-4 text-green-700">افتح متجرك معنا 🤝</h2>
             <div class="space-y-4">
-                <input type="text" id="seller-name" placeholder="اسمك الكريم" class="w-full p-3 border rounded-xl outline-none focus:border-green-500">
-                <input type="text" id="prod-name" placeholder="اسم المنتج (مثلاً: ركشة، هاتف، ثوب)" class="w-full p-3 border rounded-xl outline-none focus:border-green-500">
-                <input type="number" id="prod-price" placeholder="السعر المطلوب" class="w-full p-3 border rounded-xl outline-none focus:border-green-500">
-                <textarea id="prod-desc" placeholder="وصف بسيط للمنتج وحالته" class="w-full p-3 border rounded-xl h-24 outline-none focus:border-green-500"></textarea>
-                
-                <button onclick="sendSellerRequest()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-green-700 transition">إرسال الطلب للمراجعة ✨</button>
-                <button onclick="toggleSellerForm()" class="w-full text-gray-500 font-bold py-2">إلغاء</button>
+                <input type="text" id="seller-name" placeholder="اسمك" class="w-full p-3 border rounded-xl outline-none">
+                <input type="text" id="prod-name" placeholder="اسم المنتج" class="w-full p-3 border rounded-xl outline-none">
+                <input type="number" id="prod-price" placeholder="السعر" class="w-full p-3 border rounded-xl outline-none">
+                <button onclick="sendSellerRequest()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg">إرسال للواتساب 🚀</button>
+                <button onclick="toggleSellerForm()" class="w-full text-gray-400 py-2">إغلاق</button>
             </div>
         </div>
     </div>
 
     <main class="container mx-auto px-4 mt-8">
-        <h3 class="text-xl font-bold mb-6 border-r-4 border-green-600 pr-3">بضائع مميزة</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="products-grid">
             </div>
     </main>
 
-    <div id="cart-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl">
-            <h2 class="text-xl font-bold mb-4 border-b pb-2 text-right text-green-700">سلة المشتريات 🛒</h2>
-            <div id="cart-items" class="max-h-60 overflow-y-auto mb-4 text-right space-y-2"></div>
+    <div id="cart-modal" class="hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl p-6">
+            <h2 class="text-xl font-bold mb-4 border-b pb-2">سلة المشتريات 🛒</h2>
+            <div id="cart-items" class="max-h-60 overflow-y-auto mb-4 space-y-2"></div>
             <div class="flex justify-between font-bold text-lg border-t pt-4">
-                <span id="total-price" class="text-green-700">0</span>
+                <span id="total-price" class="text-green-700 font-bold">0</span>
                 <span>الإجمالي:</span>
             </div>
-            <div class="flex space-x-2 space-x-reverse mt-6">
-                <button onclick="sendToWhatsApp()" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg">إتمام الشراء ✅</button>
-                <button onclick="toggleCart()" class="bg-gray-200 px-4 rounded-xl font-bold">إغلاق</button>
-            </div>
+            <button onclick="sendToWhatsApp()" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold shadow-lg mt-4">إتمام الطلب ✅</button>
+            <button onclick="toggleCart()" class="w-full mt-2 text-gray-400">إغلاق</button>
         </div>
     </div>
 
@@ -67,30 +72,8 @@
         let cart = [];
         let total = 0;
 
-        // وظائف البائعين
-        function toggleSellerForm() {
-            document.getElementById('seller-modal').classList.toggle('hidden');
-        }
-
-        function sendSellerRequest() {
-            const name = document.getElementById('seller-name').value;
-            const prod = document.getElementById('prod-name').value;
-            const price = document.getElementById('prod-price').value;
-            const desc = document.getElementById('prod-desc').value;
-
-            if(!name || !prod || !price) return alert("الرجاء ملء الخانات الأساسية");
-
-            let message = "طلب_عرض_منتج_جديد🏷️:%0A";
-            message += "*التاجر:* " + name + "%0A";
-            message += "*المنتج:* " + prod + "%0A";
-            message += "*السعر:* " + price + " ج.س%0A";
-            message += "*الوصف:* " + desc;
-
-            window.open("https://wa.me/249968359011?text=" + message);
-            toggleSellerForm();
-        }
-
-        // وظائف السلة
+        function toggleDarkMode() { document.getElementById('body').classList.toggle('dark'); }
+        function toggleSellerForm() { document.getElementById('seller-modal').classList.toggle('hidden'); }
         function toggleCart() { document.getElementById('cart-modal').classList.toggle('hidden'); }
         document.getElementById('cart-icon').onclick = toggleCart;
 
@@ -105,9 +88,9 @@
             document.getElementById('total-price').innerText = total.toLocaleString() + ' ج.س';
             let html = '';
             cart.forEach((item, i) => {
-                html += `<div class="flex justify-between bg-gray-50 p-2 rounded-lg">
+                html += `<div class="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-2 rounded-lg">
                     <span class="text-red-500 cursor-pointer" onclick="removeItem(${i})">🗑️</span>
-                    <span>${item.name} - ${item.price.toLocaleString()} ج.س</span>
+                    <span class="text-sm">${item.name} - ${item.price.toLocaleString()} ج.س</span>
                 </div>`;
             });
             document.getElementById('cart-items').innerHTML = html;
@@ -121,29 +104,49 @@
 
         function sendToWhatsApp() {
             if(cart.length === 0) return;
-            let msg = "طلب شراء من سوق السودان🇸🇩:%0A";
+            let msg = "طلب شراء جديد🛍️:%0A";
             cart.forEach(item => msg += "- " + item.name + "%0A");
             msg += "%0A*الإجمالي: " + total.toLocaleString() + " ج.س*";
             window.open("https://wa.me/249968359011?text=" + msg);
         }
 
-        // إضافة بعض المنتجات للعرض
-        const initialProducts = [
-            {name: "هاتف جالكسي", price: 145000, img: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400"},
-            {name: "لابتوب توشيبا", price: 210000, img: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400"}
+        function sendSellerRequest() {
+            const name = document.getElementById('seller-name').value;
+            const prod = document.getElementById('prod-name').value;
+            const price = document.getElementById('prod-price').value;
+            let message = "عرض بضاعة جديد🆕:%0Aالتاجر: " + name + "%0Aالمنتج: " + prod + "%0Aالسعر: " + price;
+            window.open("https://wa.me/249968359011?text=" + encodeURIComponent(message));
+        }
+
+        const products = [
+            {name: "هاتف ايفون نظيف", price: 450000, img: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=400"},
+            {name: "طقم ساعات زوجي", price: 25000, img: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400"},
+            {name: "لابتوب دراسة", price: 180000, img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400"}
         ];
 
         const grid = document.getElementById('products-grid');
-        initialProducts.forEach(p => {
+        products.forEach(p => {
             grid.innerHTML += `
-                <div class="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100 p-3">
-                    <img src="${p.img}" class="w-full h-44 object-cover rounded-2xl mb-4">
-                    <h4 class="font-bold text-lg">${p.name}</h4>
-                    <p class="text-green-600 font-bold text-xl mt-1">${p.price.toLocaleString()} ج.س</p>
-                    <button onclick="addToCart('${p.name}', ${p.price})" class="w-full bg-gray-800 text-white py-3 rounded-2xl mt-4 font-bold hover:bg-black transition">أضف للسلة 🛒</button>
-                </div>
-            `;
+                <div class="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100 p-3 transition hover:scale-[1.02]">
+                    <img src="${p.img}" class="w-full h-48 object-cover rounded-2xl mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                         <h4 class="font-bold text-lg">${p.name}</h4>
+                         <button onclick="window.open('https://wa.me/?text=انظر لهذا المنتج الرائع في سوق السودان: ' + window.location.href)" class="text-xl">📤</button>
+                    </div>
+                    <p class="text-green-600 font-bold text-xl mb-4">${p.price.toLocaleString()} ج.س</p>
+                    <button onclick="addToCart('${p.name}', ${p.price})" class="w-full bg-gray-800 text-white py-3 rounded-2xl font-bold hover:bg-black">أضف للسلة 🛒</button>
+                </div>`;
         });
+
+        // نظام الإشعارات الوهمي
+        const cities = ["الخرطوم", "بورتسودان", "كسلا", "عطبرة", "مدني"];
+        setInterval(() => {
+            const city = cities[Math.floor(Math.random() * cities.length)];
+            document.getElementById('notif-text').innerText = "طلب جديد من " + city;
+            const notif = document.getElementById('live-notif');
+            notif.classList.remove('hidden');
+            setTimeout(() => notif.classList.add('hidden'), 4000);
+        }, 15000);
     </script>
 </body>
 </html>

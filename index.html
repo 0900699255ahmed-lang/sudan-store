@@ -3,66 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سوق السودان برو 🇸🇩</title>
+    <title>سوق السودان المتكامل 🇸🇩</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; transition: 0.3s; }
-        .dark { background-color: #1a202c; color: white; }
-        .dark .bg-white { background-color: #2d3748; color: white; border-color: #4a5568; }
+        body { font-family: 'Tajawal', sans-serif; transition: 0.3s; scroll-behavior: smooth; }
+        .dark { background-color: #111827; color: white; }
+        .dark .bg-white { background-color: #1f2937; color: white; border-color: #374151; }
+        .category-btn.active { background-color: #15803d; color: white; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .product-card { animation: fadeIn 0.6s ease-out; }
     </style>
 </head>
 <body class="bg-gray-50 pb-24" id="body">
 
-    <nav class="bg-green-700 text-white p-4 shadow-xl sticky top-0 z-50 flex justify-between items-center">
-        <h1 class="text-xl font-bold font-serif italic">سُوق السودان 🇸🇩</h1>
-        <div class="flex items-center space-x-2 space-x-reverse">
-            <button onclick="document.getElementById('body').classList.toggle('dark')" class="p-2 bg-green-800 rounded-full text-sm">🌙</button>
-            <div id="cart-icon" class="relative cursor-pointer bg-green-900 p-2 rounded-full">
-                🛒 <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1.5 font-bold">0</span>
+    <a href="tel:0968359011" class="fixed bottom-6 left-6 bg-green-600 text-white p-4 rounded-full shadow-2xl z-[100] hover:scale-110 transition animate-bounce">
+        📞 اتصل بنا
+    </a>
+
+    <nav class="bg-green-700 text-white p-4 shadow-xl sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-bold italic">سُوق السودان 🇸🇩</h1>
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <button onclick="document.getElementById('body').classList.toggle('dark')" class="p-2 bg-green-800 rounded-full">🌙</button>
+                <div id="cart-icon" class="relative cursor-pointer bg-green-900 p-2 rounded-full">
+                    🛒 <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1.5 font-bold">0</span>
+                </div>
             </div>
+        </div>
+        <div class="relative max-w-xl mx-auto">
+            <input type="text" id="search-input" onkeyup="searchProducts()" placeholder="ابحث عن بضاعتك هنا..." class="w-full p-3 rounded-2xl text-black outline-none shadow-lg pr-10">
+            <span class="absolute left-3 top-3">🔍</span>
         </div>
     </nav>
 
+    <div class="bg-white dark:bg-gray-800 shadow-sm sticky top-[130px] z-40 py-3 overflow-x-auto whitespace-nowrap px-4 border-b dark:border-gray-700">
+        <div class="container mx-auto flex space-x-3 space-x-reverse" id="categories">
+            <button onclick="filterCategory('الكل')" class="category-btn active px-6 py-2 rounded-xl border font-bold transition">الكل</button>
+            <button onclick="filterCategory('هواتف')" class="category-btn px-6 py-2 rounded-xl border font-bold transition">هواتف</button>
+            <button onclick="filterCategory('ساعات')" class="category-btn px-6 py-2 rounded-xl border font-bold transition">ساعات</button>
+            <button onclick="filterCategory('لابتوبات')" class="category-btn px-6 py-2 rounded-xl border font-bold transition">لابتوبات</button>
+        </div>
+    </div>
+
     <main class="container mx-auto px-4 mt-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="products-grid"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="products-grid"></div>
+        <div id="no-results" class="hidden text-center py-20 text-gray-500">لا توجد نتائج تطابق بحثك.. 🔎</div>
     </main>
 
-    <script>
-        let cart = [];
-        let total = 0;
-        const myNumber = "249968359011";
+    <footer class="mt-20 text-center p-10 bg-gray-100 dark:bg-gray-900 border-t dark:border-gray-800">
+        <div class="inline-block bg-white dark:bg-gray-800 shadow-md px-6 py-3 rounded-2xl">
+            <p class="text-xs text-gray-400">عدد الزوار المشاهدين الآن</p>
+            <span class="text-green-600 font-bold text-xl" id="visitor-count">👁️ 1,240</span>
+        </div>
+    </footer>
 
-        // أضف منتجاتك هنا دائماً
+    <script>
+        const myNumber = "249968359011";
         const products = [
-            {name: "آيفون 13 برو نظيف", price: 600000, img: "https://images.unsplash.com/photo-1633333008411-4e78d53ca419?w=400"}
+            {name: "آيفون 13 برو نظيف", price: 600000, category: "هواتف", img: "https://images.unsplash.com/photo-1633333008411-4e78d53ca419?w=400"},
+            {name: "ساعة ذكية Ultra", price: 45000, category: "ساعات", img: "https://images.unsplash.com/photo-1617043786394-f977fa12eddf?w=400"},
+            {name: "لابتوب HP Core i7", price: 280000, category: "لابتوبات", img: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400"}
         ];
 
-        function addToCart(name, price) {
-            cart.push({name, price});
-            total += price;
-            document.getElementById('cart-count').innerText = cart.length;
-            alert('تمت الإضافة للسلة ✅');
+        let currentCategory = 'الكل';
+
+        function renderProducts(data) {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = '';
+            const filtered = currentCategory === 'الكل' ? data : data.filter(p => p.category === currentCategory);
+            
+            if(filtered.length === 0) {
+                document.getElementById('no-results').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('no-results').classList.add('hidden');
+
+            filtered.forEach(p => {
+                grid.innerHTML += `
+                    <div class="bg-white rounded-[2rem] shadow-xl p-4 border border-gray-100 product-card overflow-hidden">
+                        <div class="relative">
+                            <img src="${p.img}" class="w-full h-56 object-cover rounded-3xl mb-4">
+                            <span class="absolute top-2 right-2 bg-green-600 text-white text-[10px] px-3 py-1 rounded-full font-bold">${p.category}</span>
+                        </div>
+                        <h4 class="font-bold text-xl mb-2">${p.name}</h4>
+                        <p class="text-green-600 font-bold text-2xl mb-5">${p.price.toLocaleString()} <span class="text-sm">ج.س</span></p>
+                        <div class="flex gap-2">
+                            <button onclick="askProduct('${p.name}')" class="flex-1 bg-green-500 text-white py-3 rounded-2xl font-bold hover:bg-green-600 transition">💬 استفسار</button>
+                            <button onclick="addToCart('${p.name}')" class="bg-gray-800 text-white p-3 rounded-2xl">🛒</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText === cat) btn.classList.add('active');
+            });
+            renderProducts(products);
+        }
+
+        function searchProducts() {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            const searched = products.filter(p => p.name.toLowerCase().includes(term));
+            renderProducts(searched);
         }
 
         function askProduct(name) {
-            const msg = encodeURIComponent("مرحباً، أريد الاستفسار عن: " + name);
-            window.open("https://wa.me/" + myNumber + "?text=" + msg);
+            window.open("https://wa.me/" + myNumber + "?text=" + encodeURIComponent("مرحباً، استفسار عن: " + name));
         }
 
-        const grid = document.getElementById('products-grid');
-        products.forEach(p => {
-            grid.innerHTML += `
-                <div class="bg-white rounded-3xl shadow-lg p-3 border border-gray-100 overflow-hidden">
-                    <img src="${p.img}" class="w-full h-48 object-cover rounded-2xl mb-4">
-                    <h4 class="font-bold text-lg mb-1">${p.name}</h4>
-                    <p class="text-green-600 font-bold text-xl mb-4">${p.price.toLocaleString()} ج.س</p>
-                    <div class="flex space-x-2 space-x-reverse">
-                        <button onclick="addToCart('${p.name}', ${p.price})" class="flex-1 bg-gray-800 text-white py-3 rounded-2xl text-sm font-bold hover:bg-black transition">أضف للسلة 🛒</button>
-                        <button onclick="askProduct('${p.name}')" class="flex-1 bg-green-500 text-white py-3 rounded-2xl text-sm font-bold hover:bg-green-600 transition">استفسار 💬</button>
-                    </div>
-                </div>`;
-        });
+        let cartCount = 0;
+        function addToCart(name) {
+            cartCount++;
+            document.getElementById('cart-count').innerText = cartCount;
+            alert('تمت إضافة ' + name + ' للسلة ✅');
+        }
+
+        // تشغيل البداية
+        renderProducts(products);
     </script>
 </body>
 </html>

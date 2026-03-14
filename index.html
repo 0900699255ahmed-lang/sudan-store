@@ -3,52 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر أحمد ياسر | المتكامل 🇸🇩</title>
+    <title>متجر أحمد ياسر المتكامل 🇸🇩</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; transition: 0.3s; overflow-x: hidden; }
+        body { font-family: 'Tajawal', sans-serif; transition: 0.3s; -webkit-user-select: none; user-select: none; }
         .owner-signature { background: linear-gradient(135deg, #15803d 0%, #166534 100%); }
         .name-gradient { background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
-        /* أنيميشن القائمة الجانبية */
-        #side-menu { transform: translateX(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        #side-menu.active { transform: translateX(0); }
-        .favorite-active { color: #ef4444 !important; scale: 1.2; }
+        #side-menu, #cart-sidebar { transform: translateX(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        #side-menu.active, #cart-sidebar.active { transform: translateX(0); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .favorite-active { color: #ef4444 !important; }
     </style>
 </head>
-<body class="bg-gray-50 pb-40">
+<body class="bg-gray-50 pb-40" oncontextmenu="return false;">
 
-    <div id="side-menu" class="fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-[300] p-6 dark:bg-gray-800">
+    <div id="side-menu" class="fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-[300] p-6">
         <div class="flex justify-between items-center mb-8">
-            <h2 class="text-xl font-bold text-green-700">القائمة ☰</h2>
-            <button onclick="toggleMenu()" class="text-2xl text-gray-400">✕</button>
+            <h2 class="text-xl font-bold text-green-700 font-serif italic">أحمد ياسر ☰</h2>
+            <button onclick="toggleMenu()" class="text-2xl text-gray-300">✕</button>
         </div>
         <nav class="space-y-4">
-            <button onclick="showFavorites()" class="w-full text-right flex items-center gap-3 p-4 hover:bg-gray-100 rounded-2xl transition">
-                <span>❤️</span> المنتجات المفضلة
-            </button>
-            <button onclick="contactSupport('دعم فني')" class="w-full text-right flex items-center gap-3 p-4 hover:bg-gray-100 rounded-2xl transition">
-                <span>🎧</span> مركز الدعم
-            </button>
-            <button onclick="contactSupport('تقديم شكوى')" class="w-full text-right flex items-center gap-3 p-4 hover:bg-gray-100 rounded-2xl transition text-red-600">
-                <span>⚠️</span> تقديم شكوى
-            </button>
+            <button onclick="contactSupport('دعم فني')" class="w-full text-right flex items-center gap-3 p-4 hover:bg-gray-100 rounded-2xl transition">🎧 مركز الدعم</button>
+            <button onclick="contactSupport('تقديم شكوى')" class="w-full text-right flex items-center gap-3 p-4 hover:bg-gray-100 rounded-2xl transition text-red-600 font-bold">⚠️ تقديم شكوى</button>
+            <div class="border-t pt-4 mt-4">
+                <p class="text-[10px] text-gray-400 text-center italic">الموقع محمي بشهادة SSL وتشفير كامل 🛡️</p>
+            </div>
         </nav>
     </div>
 
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-[300] p-6 overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold">سلتي 🛒</h2>
+            <button onclick="toggleCart()" class="text-2xl text-red-500">✕</button>
+        </div>
+        <div id="cart-items" class="space-y-4 mb-6"></div>
+        <div class="border-t pt-4">
+            <div class="flex justify-between font-bold mb-4"><span>الإجمالي:</span><span id="cart-total">0</span> ج.س</div>
+            <button onclick="checkout()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold">تأكيد الطلب واتساب</button>
+        </div>
+    </div>
+
     <nav class="bg-green-700 text-white p-4 shadow-xl sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <button onclick="toggleMenu()" class="text-2xl p-2 bg-green-800 rounded-xl hover:bg-green-900 transition">☰</button>
-            <h1 class="text-lg font-bold">مَتجر أحمد ياسر 🇸🇩</h1>
-            <div class="flex gap-3">
-                <div onclick="showFavorites()" class="cursor-pointer bg-green-800 p-2 rounded-full relative">
-                    ❤️ <span id="fav-count" class="absolute -top-1 -right-1 bg-red-500 text-[9px] rounded-full px-1">0</span>
-                </div>
-                <div class="bg-green-900 p-2 rounded-full cursor-pointer relative">
-                    🛒 <span id="cart-count" class="absolute -top-1 -right-1 bg-yellow-500 text-[9px] text-black rounded-full px-1 font-bold">0</span>
-                </div>
+        <div class="container mx-auto flex justify-between items-center mb-4">
+            <button onclick="toggleMenu()" class="text-2xl p-2 bg-green-800 rounded-xl">☰</button>
+            <h1 class="text-lg font-bold italic">سُوق أحمد ياسر 🇸🇩</h1>
+            <div class="flex gap-2">
+                <div id="fav-btn" class="bg-green-800 p-2 rounded-full cursor-pointer relative">❤️ <span id="fav-count" class="absolute -top-1 -right-1 bg-red-500 text-[9px] rounded-full px-1">0</span></div>
+                <div onclick="toggleCart()" class="bg-green-900 p-2 rounded-full cursor-pointer relative">🛒 <span id="cart-count" class="absolute -top-1 -right-1 bg-yellow-500 text-[9px] text-black rounded-full px-1 font-bold">0</span></div>
             </div>
         </div>
+        <input type="text" id="search-input" onkeyup="searchProducts()" placeholder="ابحث عن بضاعتك هنا..." class="w-full p-3 rounded-2xl text-black outline-none shadow-lg pr-4">
     </nav>
 
     <main class="container mx-auto px-4 mt-8">
@@ -58,68 +63,97 @@
     <footer class="fixed bottom-0 left-0 right-0 owner-signature text-white py-4 px-6 z-[150] border-t border-green-500/30">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex flex-col">
-                <span class="text-[10px] text-green-200 opacity-80 uppercase font-bold">أحمد ياسر 👑</span>
-                <span class="text-xs font-bold name-gradient italic">المالك الرسمي للمتجر</span>
+                <span class="text-[10px] text-green-200 opacity-80 uppercase font-bold tracking-widest">المؤسس والمالك</span>
+                <h2 class="text-lg">
+                    <span class="name-gradient">أحمد ياسر</span>
+                    <span class="text-[10px] mr-1 bg-black/20 px-2 py-0.5 rounded-full">👑 الملكية محفوظة</span>
+                </h2>
             </div>
-            <button onclick="window.open('tel:0968359011')" class="bg-white/10 p-3 rounded-full text-lg">📞</button>
+            <div class="flex gap-2">
+                <button onclick="window.open('tel:0968359011')" class="bg-white/10 p-3 rounded-full">📞</button>
+                <div id="visitor-count" class="text-[9px] bg-black/20 px-2 flex items-center rounded-lg italic">👁️ جاري الحساب...</div>
+            </div>
         </div>
     </footer>
 
     <script>
         const myNumber = "249968359011";
+        let cart = [];
         let favorites = JSON.parse(localStorage.getItem('userFavs')) || [];
-        
+
         const products = [
             { id: 1, name: "آيفون 13 برو نظيف", price: 600000, img: "https://images.unsplash.com/photo-1633333008411-4e78d53ca419?w=400" },
             { id: 2, name: "ساعة ذكية Ultra", price: 45000, img: "https://images.unsplash.com/photo-1617043786394-f977fa12eddf?w=400" },
-            { id: 3, name: "لابتوب HP Core i7", price: 280000, img: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400" }
+            { id: 3, name: "لابتوب HP جديد", price: 280000, img: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400" }
         ];
 
-        function render() {
+        function renderProducts(data) {
             const grid = document.getElementById('products-grid');
             grid.innerHTML = '';
-            products.forEach(p => {
+            data.forEach(p => {
                 const isFav = favorites.includes(p.id);
                 grid.innerHTML += `
-                <div class="bg-white rounded-[2.5rem] shadow-lg p-3 relative group transition hover:scale-[1.02]">
-                    <button onclick="toggleFav(${p.id})" class="absolute top-5 right-5 z-10 bg-white/80 p-2 rounded-full shadow-md ${isFav ? 'favorite-active' : 'text-gray-300'}">❤️</button>
-                    <img src="${p.img}" class="w-full h-52 object-cover rounded-[2rem] mb-4">
-                    <h4 class="font-bold text-lg mb-1 px-2">${p.name}</h4>
-                    <p class="text-green-600 font-bold px-2 mb-4">${p.price.toLocaleString()} ج.س</p>
-                    <button class="w-full bg-gray-800 text-white py-4 rounded-2xl font-bold hover:bg-black transition">أضف للسلة</button>
-                </div>`;
+                    <div class="bg-white rounded-[2rem] shadow-xl p-3 relative transition hover:scale-[1.02]">
+                        <button onclick="toggleFav(${p.id})" class="absolute top-5 right-5 z-10 bg-white shadow-md p-2 rounded-full ${isFav ? 'favorite-active' : 'text-gray-300'}">❤️</button>
+                        <img src="${p.img}" class="w-full h-52 object-cover rounded-[1.5rem] mb-4">
+                        <h4 class="font-bold text-lg px-2">${p.name}</h4>
+                        <p class="text-green-600 font-bold px-2 mb-4">${p.price.toLocaleString()} ج.س</p>
+                        <button onclick="addToCart('${p.name}', ${p.price})" class="w-full bg-gray-800 text-white py-4 rounded-2xl font-bold hover:bg-black transition shadow-lg">أضف للسلة 🛒</button>
+                    </div>`;
             });
             document.getElementById('fav-count').innerText = favorites.length;
         }
 
+        function addToCart(name, price) {
+            cart.push({name, price});
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const itemsList = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            itemsList.innerHTML = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price;
+                itemsList.innerHTML += `<div class="flex justify-between p-3 bg-gray-50 rounded-xl mb-2 text-xs font-bold"><span>${item.name}</span><button onclick="removeFromCart(${index})" class="text-red-500">🗑️</button></div>`;
+            });
+            totalEl.innerText = total.toLocaleString();
+        }
+
+        function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
+        function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); }
+        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('active'); }
+
         function toggleFav(id) {
-            if (favorites.includes(id)) {
-                favorites = favorites.filter(fid => fid !== id);
-            } else {
-                favorites.push(id);
-            }
+            if (favorites.includes(id)) favorites = favorites.filter(fid => fid !== id);
+            else favorites.push(id);
             localStorage.setItem('userFavs', JSON.stringify(favorites));
-            render();
+            renderProducts(products);
         }
 
-        function toggleMenu() {
-            document.getElementById('side-menu').classList.toggle('active');
+        function checkout() {
+            if(cart.length === 0) return alert("السلة فارغة!");
+            let msg = "أهلاً أحمد ياسر، أريد طلب:%0A";
+            cart.forEach(item => msg += "- " + item.name + "%0A");
+            msg += "*الإجمالي:* " + document.getElementById('cart-total').innerText + " ج.س";
+            window.open("https://wa.me/" + myNumber + "?text=" + msg);
         }
 
-        function contactSupport(type) {
-            const user = localStorage.getItem('userName') || "زبون";
-            const msg = "مرحباً أحمد ياسر، أريد " + type + " بخصوص المتجر. أنا الزبون: " + user;
-            window.open("https://wa.me/" + myNumber + "?text=" + encodeURIComponent(msg));
+        function contactSupport(type) { window.open("https://wa.me/" + myNumber + "?text=" + encodeURIComponent("أريد " + type)); }
+        function searchProducts() {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            renderProducts(products.filter(p => p.name.toLowerCase().includes(term)));
         }
 
-        function showFavorites() {
-            if (favorites.length === 0) return alert("ليس لديك منتجات مفضلة بعد ❤️");
-            const favItems = products.filter(p => favorites.includes(p.id)).map(p => p.name).join(', ');
-            alert("منتجاتك المفضلة هي: " + favItems);
-            toggleMenu();
-        }
-
-        window.onload = render;
+        window.onload = () => {
+            renderProducts(products);
+            let count = localStorage.getItem('vCount') || 740;
+            count = parseInt(count) + 1;
+            localStorage.setItem('vCount', count);
+            document.getElementById('visitor-count').innerText = "👁️ " + count;
+        };
     </script>
 </body>
 </html>

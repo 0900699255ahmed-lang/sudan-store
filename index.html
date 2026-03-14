@@ -3,67 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سوق السودان الذكي 🇸🇩</title>
+    <title>سوق السودان | أحمد ياسر 🇸🇩</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; transition: 0.3s; }
-        .owner-signature {
-            background: linear-gradient(135deg, #15803d 0%, #166534 100%);
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
-        }
-        .name-gradient {
-            background: linear-gradient(to right, #fbbf24, #f59e0b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 800;
-        }
+        body { font-family: 'Tajawal', sans-serif; transition: 0.3s; scroll-behavior: smooth; }
+        .dark { background-color: #111827; color: white; }
+        .dark .bg-white { background-color: #1f2937; color: white; border-color: #374151; }
+        .category-btn.active { background-color: #15803d; color: white; }
+        .owner-signature { background: linear-gradient(135deg, #15803d 0%, #166534 100%); box-shadow: 0 -4px 15px rgba(0,0,0,0.2); }
+        .name-gradient { background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
     </style>
 </head>
-<body class="bg-gray-50 pb-32">
+<body class="bg-gray-50 pb-40" id="body">
+
+    <div id="login-modal" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-8 text-center shadow-2xl">
+            <h2 class="text-2xl font-bold text-green-700 mb-2">مرحباً بك 👋</h2>
+            <p class="text-gray-500 text-sm mb-6">سجل اسمك لمرة واحدة لدخول متجرنا</p>
+            <input type="text" id="user-name-input" placeholder="اسمك الكريم" class="w-full p-4 bg-gray-100 rounded-2xl mb-4 outline-none border-2 border-transparent focus:border-green-500 text-black">
+            <button onclick="saveAndEnter()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg">دخول المتجر</button>
+        </div>
+    </div>
+
+    <a href="tel:0968359011" class="fixed bottom-24 left-6 bg-green-600 text-white p-4 rounded-full shadow-2xl z-[100] hover:scale-110 transition animate-bounce">📞</a>
 
     <nav class="bg-green-700 text-white p-4 shadow-xl sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold italic">سُوق السودان 🇸🇩</h1>
-            <div id="cart-icon" class="bg-green-900 p-2 rounded-full cursor-pointer">🛒</div>
+        <div class="container mx-auto flex justify-between items-center mb-4">
+            <div>
+                <h1 class="text-xl font-bold">سُوق السودان 🇸🇩</h1>
+                <p id="top-welcome" class="text-[10px] opacity-80">جاري التحميل...</p>
+            </div>
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <button onclick="document.getElementById('body').classList.toggle('dark')" class="p-2 bg-green-800 rounded-full text-sm">🌙</button>
+                <div class="relative bg-green-900 p-2 rounded-full cursor-pointer">
+                    🛒 <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-[10px] rounded-full px-1">0</span>
+                </div>
+            </div>
         </div>
+        <input type="text" id="search-input" onkeyup="searchProducts()" placeholder="ابحث عن بضاعتك هنا..." class="w-full p-3 rounded-2xl text-black outline-none shadow-lg">
     </nav>
 
-    <main class="container mx-auto px-4 mt-10">
-        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            </div>
+    <div class="bg-white dark:bg-gray-800 shadow-sm sticky top-[125px] z-40 py-3 overflow-x-auto whitespace-nowrap px-4 border-b dark:border-gray-700 no-scrollbar">
+        <div class="container mx-auto flex space-x-3 space-x-reverse">
+            <button onclick="filterCategory('الكل')" class="category-btn active px-6 py-2 rounded-xl border font-bold transition">الكل</button>
+            <button onclick="filterCategory('هواتف')" class="category-btn px-6 py-2 rounded-xl border font-bold transition">هواتف</button>
+            <button onclick="filterCategory('ساعات')" class="category-btn px-6 py-2 rounded-xl border font-bold transition">ساعات</button>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="products-grid"></div>
+        <div id="no-results" class="hidden text-center py-20 text-gray-500">لا توجد نتائج.. 🔎</div>
     </main>
 
-    <footer class="fixed bottom-0 left-0 right-0 owner-signature text-white py-4 px-6 z-[100] border-t border-green-600">
+    <footer class="fixed bottom-0 left-0 right-0 owner-signature text-white py-4 px-6 z-[150] border-t border-green-600">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex flex-col">
                 <span class="text-[10px] text-green-200 opacity-80 uppercase tracking-widest">مؤسس المنصة</span>
-                <h2 class="text-lg tracking-tight">
+                <h2 class="text-lg">
                     <span class="name-gradient">أحمد ياسر</span>
                     <span class="text-xs mr-1 opacity-90">👑 مالك المتجر</span>
                 </h2>
             </div>
-            <div class="text-[10px] text-left opacity-60">
-                جميع الحقوق محفوظة <br> © 2024
-            </div>
+            <div id="visitor-count" class="text-[10px] bg-green-900/50 px-3 py-1 rounded-full border border-green-500/30 text-green-100">👁️ جاري الحساب...</div>
         </div>
     </footer>
 
     <script>
+        const myNumber = "249968359011";
+        let currentCategory = 'الكل';
+        let cartCount = 0;
+
         const products = [
-            {name: "آيفون 13 برو نظيف", price: 600000, img: "https://images.unsplash.com/photo-1633333008411-4e78d53ca419?w=400"}
+            {
+                name: "آيفون 13 برو نظيف", 
+                price: 600000, 
+                category: "هواتف",
+                images: [
+                    "https://images.unsplash.com/photo-1633333008411-4e78d53ca419?w=400",
+                    "https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=400"
+                ]
+            },
+            {
+                name: "ساعة ذكية Ultra", 
+                price: 45000, 
+                category: "ساعات",
+                images: ["https://images.unsplash.com/photo-1617043786394-f977fa12eddf?w=400"]
+            }
         ];
 
-        const grid = document.getElementById('products-grid');
-        products.forEach(p => {
-            grid.innerHTML += `
-                <div class="bg-white rounded-3xl shadow-lg p-3 border border-gray-100 overflow-hidden">
-                    <img src="${p.img}" class="w-full h-48 object-cover rounded-2xl mb-4">
-                    <h4 class="font-bold text-lg">${p.name}</h4>
-                    <p class="text-green-600 font-bold text-xl mb-4">${p.price.toLocaleString()} ج.س</p>
-                    <button class="w-full bg-gray-800 text-white py-3 rounded-2xl font-bold">اطلب الآن</button>
-                </div>`;
-        });
+        window.onload = function() {
+            const savedName = localStorage.getItem('userName');
+            if (!savedName) document.getElementById('login-modal').classList.remove('hidden');
+            else document.getElementById('top-welcome').innerText = "مرحباً، " + savedName;
+            
+            renderProducts(products);
+            updateVisitors();
+        }
+
+        function saveAndEnter() {
+            const name = document.getElementById('user-name-input').value;
+            if (name.length < 2) return alert("ادخل اسمك");
+            localStorage.setItem('userName', name);
+            location.reload();
+        }
+
+        function renderProducts(data) {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = '';
+            const filtered = currentCategory === 'الكل' ? data : data.filter(p => p.category === currentCategory);
+            
+            if(filtered.length === 0) { document.getElementById('no-results').classList.remove('hidden'); return; }
+            document.getElementById('no-results').classList.add('hidden');
+
+            filtered.forEach((p, i) => {
+                grid.innerHTML += `
+                    <div class="bg-white rounded-[2rem] shadow-xl p-3 border border-gray-100 overflow-hidden">
+                        <img src="${p.images[0]}" class="w-full h-52 object-cover rounded-3xl mb-4">
+                        <h4 class="font-bold text-lg mb-1">${p.name}</h4>
+                        <p class="text-green-600 font-bold text-xl mb-4">${p.price.toLocaleString()} ج.س</p>
+                        <div class="flex gap-2">
+                            <button onclick="ask('${p.name}')" class="flex-1 bg-green-500 text-white py-3 rounded-2xl font-bold text-sm">استفسار 💬</button>
+                            <button onclick="addCart()" class="bg-gray-800 text-white p-3 rounded-2xl">🛒</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText === cat) btn.classList.add('active');
+            });
+            renderProducts(products);
+        }
+
+        function searchProducts() {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            const searched = products.filter(p => p.name.toLowerCase().includes(term));
+            renderProducts(searched);
+        }
+
+        function ask(name) { window.open("https://wa.me/" + myNumber + "?text=" + encodeURIComponent("أريد استفسار عن: " + name)); }
+        function addCart() { cartCount++; document.getElementById('cart-count').innerText = cartCount; }
+
+        function updateVisitors() {
+            let count = localStorage.getItem('vCount') || Math.floor(Math.random() * 500) + 100;
+            count = parseInt(count) + 1;
+            localStorage.setItem('vCount', count);
+            document.getElementById('visitor-count').innerText = "👁️ " + count + " زائر";
+        }
     </script>
 </body>
 </html>

@@ -9,16 +9,17 @@
     <style>
         body { font-family: 'Tajawal', sans-serif; transition: 0.3s; }
         .dark { background-color: #1a202c; color: white; }
-        .dark .bg-white { background-color: #2d3748; color: white; }
+        .dark .bg-white { background-color: #2d3748; color: white; border-color: #4a5568; }
     </style>
 </head>
 <body class="bg-gray-50 pb-24" id="body">
+
     <nav class="bg-green-700 text-white p-4 shadow-xl sticky top-0 z-50 flex justify-between items-center">
-        <h1 class="text-xl font-bold">سُوق السودان 🇸🇩</h1>
+        <h1 class="text-xl font-bold font-serif italic">سُوق السودان 🇸🇩</h1>
         <div class="flex items-center space-x-2 space-x-reverse">
             <button onclick="document.getElementById('body').classList.toggle('dark')" class="p-2 bg-green-800 rounded-full text-sm">🌙</button>
             <div id="cart-icon" class="relative cursor-pointer bg-green-900 p-2 rounded-full">
-                🛒 <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1.5">0</span>
+                🛒 <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1.5 font-bold">0</span>
             </div>
         </div>
     </nav>
@@ -29,19 +30,37 @@
 
     <script>
         let cart = [];
-        // هنا تضع منتجاتك الحقيقية
+        let total = 0;
+        const myNumber = "249968359011";
+
+        // أضف منتجاتك هنا دائماً
         const products = [
             {name: "آيفون 13 برو نظيف", price: 600000, img: "https://images.unsplash.com/photo-1633333008411-4e78d53ca419?w=400"}
         ];
 
+        function addToCart(name, price) {
+            cart.push({name, price});
+            total += price;
+            document.getElementById('cart-count').innerText = cart.length;
+            alert('تمت الإضافة للسلة ✅');
+        }
+
+        function askProduct(name) {
+            const msg = encodeURIComponent("مرحباً، أريد الاستفسار عن: " + name);
+            window.open("https://wa.me/" + myNumber + "?text=" + msg);
+        }
+
         const grid = document.getElementById('products-grid');
         products.forEach(p => {
             grid.innerHTML += `
-                <div class="bg-white rounded-3xl shadow-lg p-3 border border-gray-100">
+                <div class="bg-white rounded-3xl shadow-lg p-3 border border-gray-100 overflow-hidden">
                     <img src="${p.img}" class="w-full h-48 object-cover rounded-2xl mb-4">
-                    <h4 class="font-bold text-lg">${p.name}</h4>
+                    <h4 class="font-bold text-lg mb-1">${p.name}</h4>
                     <p class="text-green-600 font-bold text-xl mb-4">${p.price.toLocaleString()} ج.س</p>
-                    <button class="w-full bg-gray-800 text-white py-3 rounded-2xl font-bold hover:bg-black transition">أضف للسلة 🛒</button>
+                    <div class="flex space-x-2 space-x-reverse">
+                        <button onclick="addToCart('${p.name}', ${p.price})" class="flex-1 bg-gray-800 text-white py-3 rounded-2xl text-sm font-bold hover:bg-black transition">أضف للسلة 🛒</button>
+                        <button onclick="askProduct('${p.name}')" class="flex-1 bg-green-500 text-white py-3 rounded-2xl text-sm font-bold hover:bg-green-600 transition">استفسار 💬</button>
+                    </div>
                 </div>`;
         });
     </script>
